@@ -1,13 +1,13 @@
 """
 02_segment_possessions.py
 =========================
-Segments games into possessions and extracts 11 features at each decision
-point from the SportVU 2015-16 tracking data (HuggingFace format).
+Segments games into possessions and extracts 78 features (73 continuous + 5
+player IDs) at each decision point from SportVU 2015-16 tracking data.
 
-Each row in the HuggingFace dataset is one play-by-play EVENT with tracking
-moments. Events are grouped by gameid to reconstruct games. Within each
-shot/turnover event, we scan the moments to detect ball-handler changes
-(passes = decision points) and extract the 11-feature state vector.
+Processes .7z game files from local clone of linouk23/NBA-Player-Movements.
+Within each possession, detects ball-handler changes (passes = decision
+points) and extracts the full state vector including all player positions,
+velocities, pass lane features, and player IDs.
 
 Run after 00_pull_player_stats.py and 01_explore_data.py.
 Estimated time: ~20-30 minutes for medium config (~120 games).

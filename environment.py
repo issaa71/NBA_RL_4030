@@ -8,19 +8,15 @@ environment with stochastic shot outcomes. Each episode is one historical
 possession. On reset(), a random possession is sampled. The episode steps
 through passes until a shoot action is taken or the possession ends.
 
-Phase 3: Uses real SportVU data with 11-dimensional state and a shot
-probability model for stochastic rewards.
+v10: Uses real SportVU data with 78-dimensional state (73 continuous + 5
+player IDs) and Potential-Based Reward Shaping (PBRS) with EPV potential.
 
-State vector (11 features):
-    [grid_zone, distance_to_basket, closest_defender_dist,
-     num_defenders_within_6ft, best_teammate_openness, num_open_teammates,
-     shot_clock, is_three_point_zone, ball_handler_zone_fg_pct,
-     best_open_teammate_dist_to_basket, best_open_teammate_zone_fg_pct]
+See ARCHITECTURE.md for full 78-feature state vector layout.
 
 Action space (Discrete, 5):
-    0: shoot
+    0: shoot (terminal)
     1-4: pass to teammate 1-4 (sorted by distance to ball-handler)
-         Reward differentiated by target teammate's expected value
+         PBRS reward: gamma * Phi(s') - Phi(s)
 
 AISE 4030 - Group 11
 """
@@ -37,16 +33,15 @@ class NBAShootOrPassEnv(gym.Env):
     A custom Gymnasium environment that models NBA offensive possessions
     as sequential MDPs for shot-selection reinforcement learning.
 
-    Phase 3 version: uses real SportVU tracking data with 11-dimensional
-    state and a trained shot probability model for stochastic outcomes.
+    v10: uses real SportVU tracking data with 78-dimensional state
+    (73 continuous + 5 player IDs) and PBRS rewards.
 
     Attributes:
         possessions (list): Preprocessed possession sequences from SportVU data.
         config (dict): Environment configuration dictionary.
-        shot_model: Trained sklearn model for P(made | features).
         current_possession (list): The possession being replayed.
         current_step (int): Index of current decision point.
-        state (np.ndarray): Current 11D state vector.
+        state (np.ndarray): Current 78D state vector.
     """
 
     metadata = {"render_modes": ["human"]}
@@ -57,7 +52,7 @@ class NBAShootOrPassEnv(gym.Env):
 
         Args:
             possessions (list): List of preprocessed possession sequences.
-                Each possession is a list of dicts with 12 state features
+                Each possession is a list of dicts with 78 state features
                 plus metadata (action, shot_made, is_three, turnover).
             config (dict): Configuration dictionary loaded from config.yaml.
             shot_model: Trained sklearn model with predict_proba() method.
@@ -176,7 +171,7 @@ class NBAShootOrPassEnv(gym.Env):
             options (dict, optional): Unused.
 
         Returns:
-            tuple: (state vector of shape (11,), empty info dict)
+            tuple: (state vector of shape (78,), empty info dict)
         """
         super().reset(seed=seed)
         if seed is not None:
@@ -257,14 +252,14 @@ class NBAShootOrPassEnv(gym.Env):
 
     def _build_state(self, decision_point: dict) -> np.ndarray:
         """
-        Constructs a normalized 48D state vector from a decision point dict.
-        43 continuous features + 5 player IDs (raw ints, split in network).
+        Constructs a normalized 78D state vector from a decision point dict.
+        73 continuous features + 5 player IDs (raw ints, split in network).
 
         Args:
             decision_point (dict): Dict with all feature keys.
 
         Returns:
-            np.ndarray: State vector of shape (48,). Continuous features
+            np.ndarray: State vector of shape (78,). Continuous features
                 normalized to [0, 1], player IDs as raw ints.
         """
         dp = decision_point

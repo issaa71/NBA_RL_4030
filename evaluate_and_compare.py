@@ -297,7 +297,7 @@ def plot_episode_lengths(dqn_hist, dueling_hist, plots_dir):
 
 
 def plot_decision_maps(dqn_agent, dueling_agent, env, config, plots_dir):
-    """Plot 5: Shoot-probability heatmaps from real test data."""
+    """Plot 5: Shoot-probability heatmaps from real test data using full 78D state."""
     device = next(dqn_agent.online_net.parameters()).device
 
     fig, axes = plt.subplots(1, 2, figsize=(16, 6))
@@ -318,20 +318,10 @@ def plot_decision_maps(dqn_agent, dueling_agent, env, config, plots_dir):
                 if row >= 5 or col >= 10:
                     continue
 
-                raw = np.array([
-                    dp['grid_zone'], dp['distance_to_basket'],
-                    dp['closest_defender_dist'], dp['num_defenders_within_6ft'],
-                    dp['best_teammate_openness'], dp['num_open_teammates'],
-                    dp['shot_clock'], dp['is_three_point_zone'],
-                    dp['ball_handler_zone_fg_pct'],
-                    dp['best_open_teammate_dist_to_basket'],
-                    dp['best_open_teammate_zone_fg_pct'],
-                ], dtype=np.float32)
-                normalized = (raw - env._obs_low) / env._obs_range
-                normalized = np.clip(normalized, 0, 1)
-
+                # Build full 78D state using the environment's _build_state
+                state = env._build_state(dp)
                 state_tensor = torch.tensor(
-                    normalized, dtype=torch.float32
+                    state, dtype=torch.float32
                 ).unsqueeze(0).to(device)
 
                 with torch.no_grad():
@@ -397,9 +387,9 @@ def main():
 
     # --- Load training histories ---
     print("\n1. Loading training histories...")
-    with open('dqn_results/training_history.json') as f:
+    with open('results_v9/pbrs_dqn_nodist/training_history.json') as f:
         dqn_hist = json.load(f)
-    with open('dueling_dqn_results/training_history.json') as f:
+    with open('results_v9/pbrs_lr1e4/training_history.json') as f:
         dueling_hist = json.load(f)
     print(f"   DQN: {len(dqn_hist['episode_rewards'])} episodes")
     print(f"   Dueling: {len(dueling_hist['episode_rewards'])} episodes")
@@ -428,10 +418,10 @@ def main():
     )
 
     dqn_agent = DQNAgent(config, device)
-    dqn_agent.load('dqn_results/dqn_weights.pth')
+    dqn_agent.load('results_v9/pbrs_dqn_nodist/dqn_weights.pth')
 
     dueling_agent = DuelingDQNAgent(config, device)
-    dueling_agent.load('dueling_dqn_results/dueling_dqn_weights.pth')
+    dueling_agent.load('results_v9/pbrs_lr1e4/dueling_dqn_weights.pth')
 
     # --- Evaluate all policies ---
     print("\n4. Evaluating policies (500 episodes each)...")

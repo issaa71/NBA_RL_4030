@@ -28,13 +28,13 @@ rewards:
   pass: 0.0                                        # v10: PBRS handles pass incentives, no extra penalty
   turnover: -1.0                                  # Penalty for a turnover (environment-triggered)
   pass_reward_scale: 0.8                          # v8: scaling factor for pass EPV (was 0.5)
-  pass_distance_penalty: 0.01                     # v8: penalty per foot beyond 10ft pass distance
+  pass_distance_penalty: 0.0                      # v10: disabled, PBRS handles pass incentives
   shoot_baseline: 0.75                            # v9: high bar for shooting (only good looks)
   pass_baseline: 0.40                             # v9: low bar for passing (encourage ball movement)
 
 # --- DQN Hyperparameters ---
 dqn:
-  learning_rate: 0.00005            # Adam optimizer learning rate (reduced for v3 stability)
+  learning_rate: 0.0001             # Adam optimizer learning rate (best: 1e-4, v10)
   gamma: 0.95                       # Discount factor (per Phase 1 design: 0.95)
   epsilon_start: 1.0                # Initial epsilon for epsilon-greedy exploration
   epsilon_end: 0.01                 # Minimum epsilon
@@ -54,7 +54,7 @@ network:
   state_dim: 78                     # v7: 73 continuous + 5 player IDs
   continuous_dim: 73                # Number of continuous features (before IDs)
   action_dim: 5                     # shoot + pass_to_4_teammates
-  hidden_layers: [512, 256, 128]    # Bigger network for 48D state
+  hidden_layers: [512, 256, 128]    # Per-entity heads are smaller; this is a reference size
   num_players: 450                  # Compact player ID space (425 unique + padding)
   embed_dim: 8                      # Player embedding dimensionality
   activation: "relu"                # Activation function
@@ -78,7 +78,7 @@ dueling:
 
 # --- CQL (Conservative Q-Learning) ---
 cql:
-  alpha: 0.1                            # Critical for Discrete(5) — 0.01 disables conservatism
+  alpha: 0.0                            # v10: Disabled. CQL crushes terminal shoot Q-values with PBRS.
 
 # --- Paths ---
 paths:

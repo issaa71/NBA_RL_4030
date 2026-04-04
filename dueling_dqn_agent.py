@@ -101,7 +101,7 @@ class DuelingDQNAgent:
         Chooses an action using epsilon-greedy policy.
 
         Args:
-            state (np.ndarray): Current 12D state vector.
+            state (np.ndarray): Current 78D state vector.
             training (bool): If True, applies exploration.
 
         Returns:

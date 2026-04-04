@@ -104,7 +104,7 @@ class DQNAgent:
         During evaluation (training=False), always returns the greedy action.
 
         Args:
-            state (np.ndarray): The current state vector of shape (5,).
+            state (np.ndarray): The current state vector of shape (78,).
             training (bool): If True, applies epsilon-greedy exploration.
 
         Returns:
