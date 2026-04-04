@@ -1,0 +1,37 @@
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+.pytest_cache/
+
+# Large data files
+processed_possessions.pkl
+player_zone_fg.pkl
+shot_probability_model.pkl
+pbp_2015_16.csv
+pid_map.json
+
+# Old/intermediate results (kept locally)
+old_results/
+dqn_results/
+dueling_dqn_results/
+dqn_results_alpha_*/
+dueling_results_alpha_*/
+results_A_*/
+results_B_*/
+results_v9_*/
+
+# Only keep best models in results_v9
+results_v9/*/training_history.json
+results_v9/*/stdout.log
+
+# Experiment configs (main config.yaml is tracked)
+config_v9_*.yaml
+config_baseline_*.yaml
+
+# One-off scripts and notes
+step_*.md
+ab_test*.txt
+message.txt
+colab_*.ipynb
+*.json

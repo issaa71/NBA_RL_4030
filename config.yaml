@@ -1,0 +1,87 @@
+# =============================================================================
+# AISE 4030 - RL Project Phase 03
+# Reinforcement Learning for Defender-Aware Shot Selection in NBA Basketball
+# Group 11: Evan Park, Issa Ahmed, John Kaniuk, Trent Jones, Aaqil Kassam Murji
+# =============================================================================
+
+# --- Environment Settings ---
+environment:
+  dataset_path: "data/nba_tracking_data_15_16"   # Path to SportVU HuggingFace dataset (cached locally)
+  processed_data_path: "processed_possessions.pkl"  # Phase 3: processed possession sequences
+  shot_model_path: "shot_probability_model.pkl"     # Phase 3: stochastic shot outcome model
+  season: "2015-16"                               # NBA season to use
+  grid_rows: 5                                    # Rows in half-court grid
+  grid_cols: 10                                   # Columns in half-court grid (50 zones total)
+  num_actions: 5                                  # shoot + pass_to_4_teammates (v4: differentiated by target quality)
+  shot_clock_max: 24.0                            # Max shot clock seconds
+  test_split: 0.2                                 # Fraction of possessions held out for evaluation
+  random_seed: 42                                 # Seed for train/test split reproducibility
+
+# --- Reward Settings ---
+# v3: reward = (zone_fg_pct * point_value * contest_factor) - 1.0
+# contest_factor = min(closest_defender_dist / 6.0, 1.0)
+# Centering at 1.0 makes below-average shots negative
+rewards:
+  made_2pt: 2.0                                   # Base 2pt value (used in EPV formula)
+  made_3pt: 3.0                                   # Base 3pt value (used in EPV formula)
+  missed_shot: 0.0                                # Unused (EPV reward handles shot quality)
+  pass: 0.0                                        # v10: PBRS handles pass incentives, no extra penalty
+  turnover: -1.0                                  # Penalty for a turnover (environment-triggered)
+  pass_reward_scale: 0.8                          # v8: scaling factor for pass EPV (was 0.5)
+  pass_distance_penalty: 0.01                     # v8: penalty per foot beyond 10ft pass distance
+  shoot_baseline: 0.75                            # v9: high bar for shooting (only good looks)
+  pass_baseline: 0.40                             # v9: low bar for passing (encourage ball movement)
+
+# --- DQN Hyperparameters ---
+dqn:
+  learning_rate: 0.00005            # Adam optimizer learning rate (reduced for v3 stability)
+  gamma: 0.95                       # Discount factor (per Phase 1 design: 0.95)
+  epsilon_start: 1.0                # Initial epsilon for epsilon-greedy exploration
+  epsilon_end: 0.01                 # Minimum epsilon
+  epsilon_decay: 0.995              # Multiplicative epsilon decay per episode (unused with linear)
+  epsilon_decay_type: "linear"      # "linear" or "multiplicative"
+  epsilon_decay_episodes: 40000     # Episodes over which epsilon decays (linear only)
+  batch_size: 64                    # Small batches = 4x more gradient updates + implicit regularization
+  replay_buffer_capacity: 100000    # 2x original, conservative increase
+  target_update_freq: 100           # Hard sync every 100 episodes (stable for embeddings)
+  tau: 0.005                        # Unused (hard sync now)
+  n_step: 1                         # 1-step TD (n>1 is toxic for 5.7-step offline episodes)
+  min_replay_size: 500              # Minimum buffer size before training begins
+  grad_clip: 1.0                    # Gradient clipping max norm
+
+# --- Q-Network Architecture ---
+network:
+  state_dim: 78                     # v7: 73 continuous + 5 player IDs
+  continuous_dim: 73                # Number of continuous features (before IDs)
+  action_dim: 5                     # shoot + pass_to_4_teammates
+  hidden_layers: [512, 256, 128]    # Bigger network for 48D state
+  num_players: 450                  # Compact player ID space (425 unique + padding)
+  embed_dim: 8                      # Player embedding dimensionality
+  activation: "relu"                # Activation function
+
+# --- Training Settings ---
+training:
+  num_episodes: 100000              # v4: 100K episodes on full dataset
+  max_steps_per_episode: 50         # Max passes per possession (safety cap)
+  eval_frequency: 500               # Evaluate every N episodes
+  eval_episodes: 500                # More episodes for less noisy evaluation
+  checkpoint_frequency: 5000        # Save model weights every N episodes
+  log_window: 500                   # Rolling average window for learning curve (per Phase 1)
+  results_dir: "dqn_results"        # Output directory for weights, history, plots
+
+# --- Dueling DQN Settings (Phase 3) ---
+dueling:
+  results_dir: "dueling_dqn_results"
+  model_save: "dueling_dqn_results/dueling_dqn_weights.pth"
+  training_history: "dueling_dqn_results/training_history.json"
+  plots_dir: "dueling_dqn_results/plots"
+
+# --- CQL (Conservative Q-Learning) ---
+cql:
+  alpha: 0.1                            # Critical for Discrete(5) — 0.01 disables conservatism
+
+# --- Paths ---
+paths:
+  model_save: "dqn_results/dqn_weights.pth"
+  training_history: "dqn_results/training_history.json"
+  plots_dir: "dqn_results/plots"
