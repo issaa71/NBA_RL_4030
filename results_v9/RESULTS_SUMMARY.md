@@ -5,7 +5,11 @@ All v10 experiments use PBRS (Potential-Based Reward Shaping) with EPV potential
 per-entity Q-value architecture, type-aware advantage normalization, CQL=0.0,
 pass penalty=0.0, pass distance penalty=0.0.
 
-## PBRS Results (evaluated with old-style EPSA vs 0.375 baseline)
+## PBRS Results (training-time eval, old-style EPSA vs 0.375 baseline)
+
+**Note:** The report uses a separate 500-episode evaluation with consistent EPSA metric:
+Dueling = +0.177, DQN = +0.123. Numbers below are from training-time periodic eval
+which used a slightly different calculation. Both show the same ranking.
 
 | Model | EPSA | Shot EPV | Steps | Pass% | Shoot% | Key Change |
 |---|---|---|---|---|---|---|

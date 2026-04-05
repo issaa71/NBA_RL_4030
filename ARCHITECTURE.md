@@ -8,7 +8,7 @@ Guide for understanding and continuing development.
 
 An offline RL system that replays real NBA possessions from SportVU 2015-16 tracking data. Two agents (DQN, Dueling DQN) learn when to shoot and who to pass to using a 78-dimensional state vector with player ID embeddings. Rewards use Potential-Based Reward Shaping (PBRS) with EPV as the potential function. CQL is disabled (alpha=0.0) because it crushes terminal shoot Q-values.
 
-Best model: **Dueling DQN, EPSA +0.239** (`results_v9/pbrs_lr1e4/dueling_dqn_weights.pth`)
+Best model: **Dueling DQN, EPSA +0.177** (`results_v9/pbrs_lr1e4/dueling_dqn_weights.pth`)
 
 ---
 
@@ -208,8 +208,8 @@ processed_possessions.pkl (116,928 possessions, 78 features each)
             ├── DQN agent ←→ env.step() loop (100K episodes)
             └── Dueling DQN agent ←→ env.step() loop
                     ↓
-                    results_v9/pbrs_lr1e4/ (best Dueling, EPSA +0.239)
-                    results_v9/pbrs_dqn_nodist/ (best DQN, EPSA +0.228)
+                    results_v9/pbrs_lr1e4/ (best Dueling, EPSA +0.177)
+                    results_v9/pbrs_dqn_nodist/ (best DQN, EPSA +0.123)
                             ↓ (evaluate_and_compare.py)
                             comparison_plots/ (7 plots)
 ```
@@ -273,8 +273,8 @@ Players with <15 3PT attempts get 0% for zones 4-6. Bayesian shrinkage wrongly s
 
 | Model | EPSA | Shot EPV | Steps | Pass% | Shoot% |
 |---|---|---|---|---|---|
-| **Dueling PBRS LR=1e-4** | **+0.239** | **0.614** | 2.32 | 58% | 84% |
-| DQN PBRS | +0.228 | 0.603 | 2.41 | 58% | 86% |
+| **Dueling PBRS LR=1e-4** | **+0.177** | **0.552** | 2.55 | 67% | 33% |
+| DQN PBRS | +0.123 | 0.498 | 2.53 | 65% | 35% |
 
 ### Player Analysis
 - 55.4% agreement rate with NBA players
@@ -285,5 +285,5 @@ Players with <15 3PT attempts get 0% for zones 4-6. Bayesian shrinkage wrongly s
 1. PBRS with EPV is the correct reward structure (fixed baselines create bistable behavior)
 2. CQL must be 0.0 (any positive alpha crushes terminal Q-values)
 3. Per-entity Q-values fix pass action instability
-4. Network size matters less than reward design (top 8 models within +0.228 to +0.239)
+4. Network size matters less than reward design
 5. Hyperparameters barely matter once architecture and reward are right

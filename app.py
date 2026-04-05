@@ -771,23 +771,23 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 MODELS = {
     # --- Top 3 PBRS models (best results) ---
     "pbrs_lr1e4": {
-        "label": "★ BEST: PBRS LR=1e-4 (EPSA +0.239, 58% pass, 84% shoot)",
+        "label": "★ BEST: PBRS LR=1e-4 (EPSA +0.177, 67% pass, 33% shoot)",
         "type": "dueling",
         "weights": "results_v9/pbrs_lr1e4/dueling_dqn_weights.pth",
     },
     "pbrs_smallnet": {
-        "label": "PBRS Small Net [256,128] (EPSA +0.236, 58% pass, 88% shoot)",
+        "label": "PBRS Small Net [256,128] (Dueling, 2nd best)",
         "type": "dueling",
         "weights": "results_v9/pbrs_smallnet/dueling_dqn_weights.pth",
     },
     "pbrs_gamma099": {
-        "label": "PBRS gamma=0.99 (EPSA +0.236, 65% pass, 86% shoot)",
+        "label": "PBRS gamma=0.99 (Dueling, 3rd best)",
         "type": "dueling",
         "weights": "results_v9/pbrs_gamma099/dueling_dqn_weights.pth",
     },
     # --- DQN comparison ---
     "pbrs_dqn_nodist": {
-        "label": "PBRS DQN (EPSA +0.228, 58% pass, 86% shoot)",
+        "label": "PBRS DQN (EPSA +0.123, 65% pass, 35% shoot)",
         "type": "dqn",
         "weights": "results_v9/pbrs_dqn_nodist/dqn_weights.pth",
     },

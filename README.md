@@ -10,7 +10,7 @@ Western Engineering, 2026
 
 An offline RL system that learns when to shoot and who to pass to in NBA possessions. Trained on 116,928 real possessions from the 2015-16 SportVU tracking dataset (631 games). The agent observes a 78-dimensional state (all 10 player positions, velocities, shooting stats, pass lane features, and player ID embeddings) and chooses from 5 actions: shoot or pass to one of 4 teammates.
 
-**Best model:** Dueling DQN with PBRS reward, EPSA +0.239 (55.4% agreement with NBA players, identifies 811 bad shots and 4,476 missed opportunities).
+**Best model:** Dueling DQN with PBRS reward, EPSA +0.177 (55.4% agreement with NBA players, identifies 811 bad shots and 4,476 missed opportunities).
 
 ## Key Contributions
 
@@ -22,8 +22,8 @@ An offline RL system that learns when to shoot and who to pass to in NBA possess
 
 | Model | EPSA | Pass% | Shoot% |
 |---|---|---|---|
-| **Dueling DQN (PBRS)** | **+0.239** | 58% | 84% |
-| DQN (PBRS) | +0.228 | 58% | 86% |
+| **Dueling DQN (PBRS)** | **+0.177** | 67% | 33% |
+| DQN (PBRS) | +0.123 | 65% | 35% |
 
 Best weights: `results_v9/pbrs_lr1e4/dueling_dqn_weights.pth`
 
